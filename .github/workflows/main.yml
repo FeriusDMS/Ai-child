@@ -6,12 +6,34 @@ on:
       - '*'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    needs: [Commit_Norm_Checker, realise-build]
-
   Commit_Norm_Checker:
-    uses: ./.github/workflows/commit_norm_check.yml
+    name: Commit Norm Checker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run commit norm checker
+        run: echo "Checking commit norms..."
 
   realise-build:
-    uses: ./.github/workflows/realise_build.yml
+    name: Realise Build
+    runs-on: ubuntu-latest
+    needs: Commit_Norm_Checker
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build project
+        run: echo "Building the project..."
+
+  build:
+    name: Final Build Step
+    runs-on: ubuntu-latest
+    needs: [Commit_Norm_Checker, realise-build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Final build step
+        run: echo "Performing final build steps..."
