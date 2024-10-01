@@ -1,0 +1,28 @@
+name: Commit_Norm_Checker
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v2
+
+    - name: Installation de Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Installation de commitlint
+      run: npm install -g @commitlint/cli @commitlint/config-conventional
+
+    - name: Vérification des messages de commit
+      run: |
+        git log
+        git rev-parse --verify HEAD~1 || exit 0
+        commitlint --from=HEAD~1

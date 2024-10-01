@@ -1,0 +1,40 @@
+name: realise_build
+
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
+    tags:
+      - v*
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker
+
+    permissions:
+      contents: write  # Explicitly set the permissions
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: update
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gh
+
+    - name: Create Release
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+      run: |
+          gh release create "$tag" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --generate-notes

@@ -1,0 +1,17 @@
+name: Workflow Principal
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    needs: [Commit_Norm_Checker, realise-build]
+
+  Commit_Norm_Checker:
+    uses: ./.github/workflows/commit_norm_check.yml
+
+  realise-build:
+    uses: ./.github/workflows/realise_build.yml
