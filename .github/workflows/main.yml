@@ -3,7 +3,7 @@ name: Workflow Principal
 on:
   push:
     branches:
-      - '*'
+      - 'main'
 
 jobs:
   Commit_Norm_Checker:
