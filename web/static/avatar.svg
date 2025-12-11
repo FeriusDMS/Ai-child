@@ -1,0 +1,33 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond circulaire -->
+  <circle cx="100" cy="100" r="95" fill="#FFE5EC"/>
+  
+  <!-- Visage -->
+  <circle cx="100" cy="100" r="70" fill="#FFD6E0"/>
+  
+  <!-- Yeux -->
+  <ellipse cx="75" cy="85" rx="8" ry="12" fill="#5C4033"/>
+  <ellipse cx="125" cy="85" rx="8" ry="12" fill="#5C4033"/>
+  
+  <!-- Reflets des yeux -->
+  <circle cx="73" cy="82" r="3" fill="white"/>
+  <circle cx="123" cy="82" r="3" fill="white"/>
+  
+  <!-- Bouche souriante -->
+  <path d="M 80 110 Q 100 120 120 110" stroke="#FF6B9D" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Joues roses -->
+  <circle cx="65" cy="105" r="10" fill="#FFB6C1" opacity="0.6"/>
+  <circle cx="135" cy="105" r="10" fill="#FFB6C1" opacity="0.6"/>
+  
+  <!-- Cheveux -->
+  <path d="M 30 80 Q 30 30 100 30 Q 170 30 170 80" fill="#C8A882"/>
+  
+  <!-- Mèche de cheveux -->
+  <path d="M 100 30 Q 105 25 110 30" fill="#B89968" stroke="#B89968" stroke-width="2"/>
+  
+  <!-- Nœud -->
+  <circle cx="155" cy="60" r="12" fill="#FF6B9D"/>
+  <circle cx="165" cy="60" r="12" fill="#FF6B9D"/>
+  <circle cx="160" cy="60" r="5" fill="#C44569"/>
+</svg>
