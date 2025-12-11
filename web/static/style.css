@@ -204,6 +204,48 @@ body {
     border-top: 1px solid #e0e0e0;
 }
 
+.controls-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.control-btn {
+    background: var(--chat-bg);
+    border: 2px solid transparent;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: all 0.3s;
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+}
+
+.control-btn.active {
+    background: var(--bg-gradient);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.control-btn.recording {
+    background: #e74c3c;
+    color: white;
+    animation: pulse-mic 1.5s infinite;
+}
+
+@keyframes pulse-mic {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
 .input-wrapper {
     display: flex;
     gap: 10px;
