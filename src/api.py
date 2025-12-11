@@ -2,18 +2,21 @@
 API Flask pour l'AI-Child
 Permet d'accéder à l'IA depuis un téléphone mobile
 """
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 from ai_child import AIChild
+from azure_tts import AzureTTS
 import os
+import io
 
 app = Flask(__name__, 
             static_folder='../web/static',
             template_folder='../web/templates')
 CORS(app)
 
-# Instance globale de l'AI-Child
+# Instance globale de l'AI-Child et Azure TTS
 ai_child = AIChild()
+azure_tts = AzureTTS()
 
 @app.route('/')
 def home():
@@ -36,8 +39,34 @@ def chat():
         return jsonify({
             'response': ai_response,
             'level': ai_child.memory.data['level'],
-            'interactions': ai_child.memory.data['interactions_count']
+            'interactions': ai_child.memory.data['interactions_count'],
+            'has_audio': azure_tts.enabled
         })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/speak', methods=['POST'])
+def speak():
+    """Endpoint pour générer l'audio avec Azure TTS"""
+    try:
+        data = request.json
+        text = data.get('text', '')
+        
+        if not text:
+            return jsonify({'error': 'Texte vide'}), 400
+        
+        # Générer l'audio avec Azure TTS
+        audio_data = azure_tts.text_to_speech(text)
+        
+        if audio_data:
+            return send_file(
+                io.BytesIO(audio_data),
+                mimetype='audio/wav',
+                as_attachment=False
+            )
+        else:
+            return jsonify({'error': 'TTS non disponible'}), 503
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500

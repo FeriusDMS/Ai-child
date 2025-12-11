@@ -84,32 +84,51 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadVoices() {
     const voices = synth.getVoices();
     
-    // Priorité: voix française féminine/enfantine
-    const preferredVoices = [
-        'Google français',
-        'Microsoft Julie',
-        'Microsoft Hortense',
-        'Amelie',
-        'Thomas',
-        'fr-FR',
-        'French'
-    ];
+    // Afficher TOUTES les voix disponibles pour que l'utilisateur puisse choisir
+    console.log('========================================');
+    console.log('📢 TOUTES LES VOIX DISPONIBLES:');
+    console.log('========================================');
+    voices.forEach((voice, i) => {
+        console.log(`${i}: ${voice.name} (${voice.lang})`);
+    });
+    console.log('========================================');
     
-    // Chercher une voix féminine française
-    for (let pref of preferredVoices) {
-        selectedVoice = voices.find(voice => 
-            voice.name.includes(pref) || 
-            voice.lang.includes('fr')
-        );
-        if (selectedVoice) break;
-    }
+    // Priorité absolue: Microsoft Azure Ashley
+    selectedVoice = voices.find(voice => 
+        voice.name.includes('Ashley')
+    );
     
-    // Fallback: première voix française disponible
+    // Si Ashley n'est pas disponible, essayer d'autres voix enfantines/féminines
     if (!selectedVoice) {
-        selectedVoice = voices.find(voice => voice.lang.startsWith('fr')) || voices[0];
+        const preferredVoices = [
+            'Zira',           // Voix féminine Microsoft souvent préinstallée
+            'Julie',          // Voix française
+            'Amelie',
+            'Virginie',
+            'Google français',
+            'Microsoft David Desktop',
+            'Microsoft Hazel Desktop'
+        ];
+        
+        for (let pref of preferredVoices) {
+            selectedVoice = voices.find(voice => 
+                voice.name.includes(pref)
+            );
+            if (selectedVoice) break;
+        }
     }
     
-    console.log('Voix sélectionnée:', selectedVoice?.name);
+    // Dernier fallback: première voix féminine anglaise (on augmentera le pitch)
+    if (!selectedVoice) {
+        selectedVoice = voices.find(voice => 
+            voice.lang.startsWith('en') && voice.name.toLowerCase().includes('female')
+        ) || voices.find(voice => 
+            voice.lang.startsWith('fr')
+        ) || voices[0];
+    }
+    
+    console.log('✅ Voix sélectionnée:', selectedVoice?.name, '(' + selectedVoice?.lang + ')');
+    console.log('💡 Regardez la liste ci-dessus et dites-moi quelle voix vous préférez!');
 }
 
 // Toggle voice on/off
@@ -123,22 +142,63 @@ function toggleVoice() {
 }
 
 // Speak text
-function speak(text) {
-    if (!voiceEnabled || !synth) return;
+async function speak(text) {
+    if (!voiceEnabled) return;
     
-    // Cancel any ongoing speech
+    try {
+        // Essayer d'abord Azure TTS (si configuré)
+        const response = await fetch(`${API_BASE}/api/speak`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text })
+        });
+        
+        if (response.ok) {
+            // Azure TTS disponible - utiliser l'audio reçu
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            
+            // Animation de l'avatar pendant qu'il parle
+            audio.onplay = () => {
+                avatar.style.transform = 'scale(1.05)';
+                avatar.style.transition = 'transform 0.2s';
+            };
+            
+            audio.onended = () => {
+                avatar.style.transform = 'scale(1)';
+                URL.revokeObjectURL(audioUrl);
+            };
+            
+            audio.play();
+        } else {
+            // Fallback: utiliser la synthèse vocale du navigateur
+            useBrowserTTS(text);
+        }
+    } catch (error) {
+        console.log('Azure TTS non disponible, utilisation du TTS du navigateur');
+        useBrowserTTS(text);
+    }
+}
+
+// Fallback: TTS du navigateur
+function useBrowserTTS(text) {
+    if (!synth) return;
+    
     synth.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = selectedVoice;
-    utterance.rate = 1.1; // Un peu plus rapide pour sonner plus jeune
-    utterance.pitch = 1.3; // Voix plus aiguë pour sonner enfantine
+    utterance.rate = 1.1;
+    utterance.pitch = 1.4;
     utterance.volume = 1;
     utterance.lang = 'fr-FR';
     
-    // Animation de l'avatar pendant qu'il parle
     utterance.onstart = () => {
         avatar.style.transform = 'scale(1.05)';
+        avatar.style.transition = 'transform 0.2s';
     };
     
     utterance.onend = () => {
