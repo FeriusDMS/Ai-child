@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>AI-Child 🌟</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header avec stats -->
+        <div class="header">
+            <div class="avatar-container">
+                <img src="/static/avatar.svg" alt="AI-Child" class="avatar" id="avatar">
+                <div class="status-indicator" id="status"></div>
+            </div>
+            <div class="stats">
+                <h2 id="ai-name">AI-Child</h2>
+                <div class="stats-row">
+                    <span class="badge">Niveau <span id="level">1</span></span>
+                    <span class="badge">💬 <span id="interactions">0</span></span>
+                </div>
+                <p class="description" id="description">Chargement...</p>
+            </div>
+        </div>
+
+        <!-- Zone de conversation -->
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <h3>👋 Bonjour !</h3>
+                <p>Je suis ton AI-Child. Parle-moi et je vais grandir avec toi ! 😊</p>
+            </div>
+        </div>
+
+        <!-- Zone de saisie -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    placeholder="Écris ton message..." 
+                    autocomplete="off"
+                >
+                <button id="sendBtn" class="send-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 8L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
