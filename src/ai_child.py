@@ -1,8 +1,8 @@
 """
 Moteur principal de l'AI-Child
-Gère la personnalité évolutive et les interactions avec Ollama
+Gère la personnalité évolutive et les interactions avec Gemini Pro
 """
-import ollama
+import google.generativeai as genai
 from memory import Memory
 import os
 from dotenv import load_dotenv
@@ -12,7 +12,14 @@ class AIChild:
         load_dotenv()
         self.memory = Memory()
         self.name = "AI-Child"  # Vous pouvez changer le nom
-        self.model = "phi3:mini"  # Modèle Ollama léger et performant
+        self.model = "gemini-pro"  # Modèle Gemini Pro de Google
+        
+        # Configuration de l'API Gemini
+        api_key = os.getenv('GEMINI_API_KEY')
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY non trouvée dans le fichier .env")
+        genai.configure(api_key=api_key)
+        self.gemini_model = genai.GenerativeModel('gemini-pro')
     
     def get_system_prompt(self) -> str:
         """Génère le prompt système selon le niveau et la personnalité"""
@@ -63,30 +70,34 @@ Tu es capable de raisonnements complexes tout en restant attachant(e)."""
     
     def chat(self, user_message: str) -> str:
         """Envoie un message et reçoit une réponse"""
-        # Construire l'historique de conversation
-        messages = [{"role": "system", "content": self.get_system_prompt()}]
+        # Construire le contexte complet
+        system_prompt = self.get_system_prompt()
         
         # Ajouter le contexte des conversations récentes
+        context = system_prompt + "\n\nHistorique récent:\n"
         recent_context = self.memory.get_recent_context(5)
         for conv in recent_context:
-            messages.append({"role": "user", "content": conv["user"]})
-            messages.append({"role": "assistant", "content": conv["ai"]})
+            context += f"Utilisateur: {conv['user']}\n"
+            context += f"Toi: {conv['ai']}\n"
         
-        # Ajouter le message actuel
-        messages.append({"role": "user", "content": user_message})
+        # Message complet avec contexte
+        full_message = context + f"\n\nUtilisateur: {user_message}\nToi:"
         
         try:
-            # Appel à Ollama (local, gratuit, hors ligne)
-            response = ollama.chat(
-                model=self.model,
-                messages=messages,
-                options={
-                    "temperature": 0.8 + (self.memory.data["level"] * 0.02),
-                    "num_predict": 150  # Limite pour garder des réponses courtes au début
-                }
+            # Configuration de génération
+            generation_config = genai.GenerationConfig(
+                temperature=0.8 + (self.memory.data["level"] * 0.02),
+                max_output_tokens=150,  # Limite pour garder des réponses courtes au début
+                top_p=0.95,
             )
             
-            ai_response = response['message']['content']
+            # Appel à Gemini Pro
+            response = self.gemini_model.generate_content(
+                full_message,
+                generation_config=generation_config
+            )
+            
+            ai_response = response.text
             
             # Sauvegarder dans la mémoire
             self.memory.add_conversation(user_message, ai_response)
